@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☀️ [과학 수행평가] 과학 기사로 만드는 우주 기상 예보</title>
+<style>
+:root{--bg:#0b1026;--bg2:#121a3a;--card:#182145;--line:#2a3666;--fg:#eef1ff;--muted:#9aa5d1;--gold:#f5c04a;--orange:#ff8a3d;--blue:#5aa9ff;--green:#4cd3a0;--red:#ff6b6b;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:radial-gradient(1200px 600px at 10% -10%,#1d2a63 0%,var(--bg) 55%);color:var(--fg);line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:16px}
+header.top{position:sticky;top:0;z-index:20;background:rgba(11,16,38,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header .wrap{padding:12px 16px}
+h1{margin:0 0 10px;font-size:1.35rem;color:var(--gold)}
+.stu{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stu input{width:100%}
+input,textarea,select{background:var(--bg2);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 12px;font-size:.95rem;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
+input.bad,textarea.bad{border-color:var(--red)}
+textarea{width:100%;min-height:84px;resize:vertical}
+.progress{margin-top:10px;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.bar{flex:1;height:10px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--gold));transition:width .3s}
+section.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:18px}
+.step h2{margin:0 0 6px;font-size:1.15rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pt{font-size:.75rem;background:var(--bg2);border:1px solid var(--line);color:var(--gold);padding:2px 10px;border-radius:99px;font-weight:700}
+.desc{color:var(--muted);font-size:.9rem;margin:0 0 14px}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.acard{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.15s;text-align:left;color:var(--fg);font-family:inherit}
+.acard:hover{border-color:var(--blue);transform:translateY(-2px)}
+.acard.on{border-color:var(--gold);background:#22295a}
+.acard .ic{font-size:1.6rem}.acard .tag{font-size:.72rem;color:var(--orange);margin-top:4px}.acard .tt{font-weight:700;font-size:.9rem;margin-top:2px;line-height:1.35}
+.article{margin-top:14px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;display:none}
+.article.show{display:block}
+.article h3{margin:0 0 4px;color:var(--gold)}
+.article .meta{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+.article p{margin:0 0 10px;font-size:.95rem}
+mark{background:#f5c04a55;color:#ffe9a8;padding:0 3px;border-radius:4px}
+.mission{margin-top:14px;display:grid;gap:12px}
+.box{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.box h4{margin:0 0 8px;font-size:1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.box h4 small{color:var(--muted);font-weight:400;font-size:.8rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row>div{min-width:0}
+.row input,.row select{width:100%}
+label.chk{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:.88rem;line-height:1.35}
+label.chk input{width:18px;height:18px;flex:none;accent-color:var(--gold)}
+.chks2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.blk{border-left:5px solid var(--line);padding-left:12px;margin-top:14px}
+.blk.g{border-color:var(--green)}.blk.y{border-color:var(--gold)}.blk.r{border-color:var(--red)}.blk.b{border-color:var(--blue)}
+.blk h4{margin:0 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.blk .tpl{background:var(--bg2);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:.95rem;color:#d7ddff;margin-bottom:8px;line-height:2.1}
+.blk select.inl{display:inline-block;width:auto;max-width:100%;padding:5px 10px;margin:2px;font-size:.92rem;border-color:var(--gold);font-weight:700;color:#ffe9a8}
+.prev{margin-top:8px;font-size:.9rem;color:var(--muted);background:#0e1430;border-radius:10px;padding:10px;border:1px solid var(--line)}
+.prev b{color:var(--fg)}
+.tip{font-size:.85rem;color:var(--muted);margin:6px 0}
+.cnt{font-size:.82rem;margin-top:4px;color:var(--muted)}
+.cnt.bad{color:var(--red);font-weight:700}
+.cnt.ok{color:var(--green)}
+.hints{margin:6px 0 8px;font-size:.8rem;color:var(--muted)}
+.hints span{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:1px 9px;margin:2px;color:#d7ddff}
+.locked{opacity:.4;pointer-events:none;user-select:none}
+.locknote{background:#3a2a10;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:10px 12px;font-size:.9rem;font-weight:700;margin-bottom:10px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button.b{background:var(--blue);color:#061129;border:0;border-radius:10px;padding:11px 16px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit}
+button.b.gold{background:var(--gold)}button.b.org{background:var(--orange)}button.b.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}button.b.red{background:var(--red)}
+button.b:disabled{opacity:.45;cursor:not-allowed}
+.final{display:none;margin-top:16px;background:#fffdf5;color:#1a1a2e;border-radius:12px;padding:26px 30px;border:6px double var(--gold)}
+.final.show{display:block}
+.final h3{margin:0 0 4px;color:#9a6b00}
+.final .fm{font-size:.85rem;color:#666;margin-bottom:14px;border-bottom:1px solid #ddd;padding-bottom:8px}
+.final p{margin:0 0 12px;font-size:1rem;line-height:1.8}
+.final p.speak{background:#fff3d6}
+.final .lb{font-weight:800;color:#b25a00;margin-right:6px}
+.tts{display:none;margin-top:12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.tts.show{display:block}
+.tts .ctl{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.tts label{font-size:.8rem;color:var(--muted)}
+.todo{margin-top:10px;font-size:.85rem;color:var(--muted)}
+.todo span{display:inline-block;background:var(--bg2);border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:2px}
+footer{color:var(--muted);font-size:.8rem;text-align:center;padding:20px}
+footer button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.8rem;text-decoration:underline;font-family:inherit}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--gold);color:#1a1a2e;padding:10px 18px;border-radius:99px;font-weight:700;display:none;z-index:50}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:40;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px}
+.modal.show{display:flex}
+.panel{background:var(--card);border:1px solid var(--gold);border-radius:14px;max-width:900px;width:100%;padding:20px}
+.panel h2{margin:0 0 10px;color:var(--gold);font-size:1.1rem}
+.panel table{width:100%;border-collapse:collapse;font-size:.88rem;margin:8px 0}
+.panel th,.panel td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.panel td.n,.panel th.n{text-align:right}
+.panel .tot td{font-weight:800;color:var(--gold)}
+.panel details{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px}
+.panel summary{cursor:pointer;font-weight:700}
+.pin{display:flex;gap:8px;align-items:center}
+.warn{font-size:.82rem;color:var(--orange)}
+.sstat{margin-top:10px;font-size:.9rem;border-radius:10px;padding:10px 12px;border:1px solid var(--line);background:var(--bg2);display:none;line-height:1.5}
+.sstat.show{display:block}
+.sstat.ok{border-color:var(--green);color:var(--green)}
+.sstat.err{border-color:var(--red);color:var(--red)}
+.sstat.busy{border-color:var(--gold);color:var(--gold)}
+.panel code{background:#0e1430;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.82rem;word-break:break-all}
+.panel ol.steps{font-size:.86rem;color:var(--muted);padding-left:20px;margin:8px 0}
+.panel ol.steps li{margin:3px 0}
+.panel ol.steps b{color:var(--fg)}
+.gok{color:var(--green);font-weight:700}.gbad{color:var(--red);font-weight:700}
+@media (max-width:900px){.cards{grid-template-columns:repeat(3,1fr)}.chks2{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.stu{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.tts .ctl{grid-template-columns:1fr}.chks2{grid-template-columns:1fr}}
+@media print{body{background:#fff;color:#000}header.top,section.step,footer,.toast,.tts,.modal,.btns,.noprint{display:none!important}.final{display:block!important;border:4px double #b8860b;margin:0;padding:18mm 16mm;color:#000;page-break-inside:avoid}.final p{font-size:12.5pt}@page{size:A4;margin:10mm}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<h1>☀️ [과학 수행평가] 과학 기사로 만드는 우주 기상 예보</h1>
+<div class="stu">
+<input id="stuClass" placeholder="학년 / 반 / 번호 (예: 1-3 12번)">
+<input id="stuName" placeholder="이름">
+<input id="stuGroup" placeholder="모둠명 / 역할 (예: 태양팀 / 기상캐스터)">
+</div>
+<div class="progress"><span>작성 진행률</span><div class="bar"><i id="pbar"></i></div><span id="ptext">0 / 14 항목</span></div>
+</div></header>
+
+<main class="wrap">
+<section class="step" id="step1">
+<h2>🗞️ [1단계] 뉴스 기사 선택 및 스크랩 분석 <span class="pt">10점</span></h2>
+<p class="desc">5개의 기사 중 1개를 선택하세요. 선택한 기사를 읽고 아래 분석 미션을 수행합니다. (노란 표시 = 핵심 과학 용어) &nbsp;·&nbsp; 배점: 기사 선택 1점 + 미션 1 4점 + 미션 2 5점</p>
+<div class="cards" id="cards"></div>
+<div class="article" id="article"></div>
+
+<div class="locknote" id="lock1">🔒 먼저 위에서 기사 1개를 선택하세요. 기사를 선택하면 미션이 열립니다.</div>
+<div class="mission" id="missionBox">
+<div class="box">
+<h4>🎯 미션 1. 기사에서 가장 중요한 태양 현상은 무엇인가요? <span class="pt">4점</span><small>현상 선택 2점 + 근거 작성 2점</small></h4>
+<div class="row">
+<div><select id="m1phen"><option value="">현상을 선택하세요</option></select></div>
+<div><input id="m1reason" placeholder="기사의 어떤 문장을 보고 그렇게 판단했나요? (20자 이상)"><div class="cnt" id="cnt_m1reason"></div></div>
+</div>
+</div>
+<div class="box">
+<h4>🌍 미션 2. 이 현상이 지구·우주에 미친 영향 2가지를 쓰세요. <span class="pt">5점</span><small>영향 하나당 2.5점 · 기사에 나온 내용만</small></h4>
+<div class="row">
+<div><input id="m2a" placeholder="영향 ① (예: ○○이 △△되었다)"><div class="cnt" id="cnt_m2a"></div></div>
+<div><input id="m2b" placeholder="영향 ②"><div class="cnt" id="cnt_m2b"></div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="step" id="step2">
+<h2>🎙️ [2단계] 1분 우주 기상 예보 대본 작성기 <span class="pt">15점</span></h2>
+<p class="desc">기상캐스터가 되어 빈칸을 채우면 대본이 완성됩니다. <b style="color:var(--gold)">반드시 1단계에서 선택한 기사의 내용만</b> 사용하세요. 뉴스 예보문답게 "~입니다", "~바랍니다"와 같은 정중한 말투로 작성하세요.</p>
+<div class="locknote" id="lock2">🔒 1단계에서 기사를 선택하면 대본 작성기가 열립니다.</div>
+<div id="step2Body">
+
+<div class="blk g"><h4>🟢 [오프닝] <small style="color:var(--muted);font-weight:400">이름 자동 반영 · 예보 날짜 = 선택한 기사 속 사건 날짜</small></h4>
+<div class="prev" id="pOpen"></div></div>
+
+<div class="blk y"><h4>🟡 [본문 1] 태양 표면 상황 <span class="pt">5점</span><small style="color:var(--muted);font-weight:400">빈칸 3개는 기사 내용과 맞는 것 1개씩 선택(각 1점) + 상세 설명 2점</small></h4>
+<div class="tpl">현재 태양의 <select class="inl" id="b1loc"></select> 에서는 <select class="inl" id="b1surf"></select> 이(가) 관측되고 있습니다. 이곳에서 <select class="inl" id="b1erupt"></select> 이(가) 발생하였습니다.</div>
+<div class="hints" id="hintDetail"></div>
+<textarea id="b1detail" placeholder="기사에 나온 내용으로 현상을 더 자세히 설명해 주세요. (크기·규모·속도·지구 도달 시간 등, 20자 이상, 기사의 핵심 용어 포함)"></textarea>
+<div class="cnt" id="cnt_b1detail"></div>
+<div class="prev" id="pB1"></div></div>
+
+<div class="blk r"><h4>🔴 [본문 2] 우려되는 지구 영향 <span class="pt">5점</span><small style="color:var(--muted);font-weight:400">영향 2개 이상 선택 2점 + 피해 사례 3점</small></h4>
+<p class="tip">선택한 기사에서 실제로 보고된 영향만 보입니다. 해당하는 것을 모두 선택하세요.</p>
+<div class="chks2" id="impacts"></div>
+<div class="hints" id="hintCase"></div>
+<textarea id="b2case" placeholder="기사의 실제 피해 사례를 들어 설명해 주세요. (언제, 어디서, 어떤 피해가 있었는지 기사 속 숫자와 함께, 20자 이상)" style="margin-top:4px"></textarea>
+<div class="cnt" id="cnt_b2case"></div>
+<div class="prev" id="pB2"></div></div>
+
+<div class="blk b"><h4>🔵 [클로징] 대비책 및 마무리 인사</h4>
+<div class="hints" id="hintClose"></div>
+<textarea id="closing" placeholder="기사에 나온 피해를 막기 위해 시민·기관이 어떻게 대비해야 하는지 안내하고 마무리 인사를 작성하세요. (예: 위성 운영 기관은 ... 하시기 바랍니다. 지금까지 우주 기상캐스터 ○○○였습니다.)"></textarea>
+<div class="cnt" id="cnt_closing"></div>
+<div class="prev" id="pClose"></div></div>
+
+</div>
+</section>
+
+<section class="step" id="step3">
+<h2>📤 [3단계] 최종 완료 및 제출</h2>
+<p class="desc">모든 항목을 작성한 뒤 완성본을 확인하고 제출하세요. 채점 결과는 선생님이 확인합니다.</p>
+<div class="todo" id="todo"></div>
+<div class="btns">
+<button class="b gold" id="btnFinal">📝 대본 완성 및 완성본 보기</button>
+<button class="b" id="btnPrint" disabled>🖨️ 인쇄하기 (PDF로 저장)</button>
+<button class="b ghost" id="btnCopy" disabled>📋 대본 텍스트 복사</button>
+<button class="b org" id="btnSubmit" disabled>📨 선생님께 제출하기</button>
+<button class="b ghost" id="btnTTS" disabled>🔊 AI 더빙 듣기</button>
+<button class="b red" id="btnReset">🗑️ 초기화</button>
+</div>
+<div class="sstat" id="sstat"></div>
+<div class="tts" id="ttsBox">
+<div class="ctl">
+<div><label>음성</label><select id="voiceSel"></select></div>
+<div><label>속도 <span id="rateV">1.0</span></label><input type="range" id="rate" min="0.6" max="1.4" step="0.1" value="1" style="width:100%"></div>
+<div><label>높낮이 <span id="pitchV">1.0</span></label><input type="range" id="pitch" min="0.6" max="1.4" step="0.1" value="1" style="width:100%"></div>
+</div>
+<div class="btns" style="margin-top:4px">
+<button class="b" id="ttsPlay">▶ 재생</button><button class="b ghost" id="ttsPause">⏸ 일시정지</button><button class="b ghost" id="ttsStop">⏹ 정지</button>
+</div>
+</div>
+<div class="final" id="final"></div>
+</section>
+</main>
+
+<footer>중학교 1학년 과학 · 태양 활동과 우주 기상 &nbsp;|&nbsp; <button id="teacherLink">🔒 교사용</button></footer>
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="modal"><div class="panel">
+<div id="pinArea">
+<h2>🔒 교사용 채점 패널</h2>
+<p class="tip">교사 PIN을 입력하세요. (파일 상단 CONFIG.TEACHER_PIN에서 변경 가능)</p>
+<div class="pin"><input type="password" id="pinIn" placeholder="PIN"><button class="b gold" id="pinOk">확인</button><button class="b ghost" id="pinCancel">닫기</button></div>
+</div>
+<div id="teacherArea" style="display:none">
+<h2>📊 교사용 채점 패널</h2>
+<p class="warn">※ 이 화면은 학생에게 보이지 않도록 사용 후 반드시 [잠그기]를 누르세요.</p>
+<h4 style="margin:12px 0 4px">① 현재 화면 학생의 자동 채점 결과</h4>
+<div id="tScore"></div>
+<details><summary>② 제출 코드 해독 (학생이 복사해 보낸 '교사 확인 코드' 붙여넣기)</summary>
+<textarea id="codeIn" placeholder="SWX1-... 형태의 코드를 붙여넣으세요" style="margin-top:8px"></textarea>
+<div class="btns" style="margin-top:8px"><button class="b" id="codeDecode">해독하기</button></div>
+<div id="codeOut"></div>
+</details>
+<details><summary>③ 정답표 (미션 1 핵심 현상 · 본문 1 선택지 정답 · 예보 날짜)</summary><div id="tKey"></div></details>
+<details><summary>④ 자동 채점 기준</summary>
+<table>
+<tr><th>항목</th><th>기준</th><th class="n">배점</th></tr>
+<tr><td>기사 선택</td><td>기사 1개 선택</td><td class="n">1</td></tr>
+<tr><td>미션 1</td><td>핵심 현상 2점 / 관련 현상 1점 + 근거 20자 이상 2점 (10자 이상 1점)</td><td class="n">4</td></tr>
+<tr><td>미션 2</td><td>영향 2가지 각 20자 이상 2.5점 (10자 이상 1.5점)</td><td class="n">5</td></tr>
+<tr><td>본문 1</td><td>위치·표면 현상·분출 현상 4지선다 정답 각 1점 + 상세 설명 20자 이상·기사 핵심 용어 포함 2점 (20자 이상만 1점)</td><td class="n">5</td></tr>
+<tr><td>본문 2</td><td>영향 2개 이상 선택 2점 (1개 1점) + 피해 사례 20자 이상·숫자 포함 3점 (20자 이상 2점 / 10자 이상 1점)</td><td class="n">5</td></tr>
+<tr><td>어조</td><td>학생이 쓴 문장 중 경어체(~입니다/~습니다/~바랍니다 등) 비율: 90%↑ 5 / 70%↑ 4 / 50%↑ 3 / 30%↑ 2 / 그 외 1 (2문장 미만 0)</td><td class="n">5</td></tr>
+</table>
+<p class="tip">자동 점수는 참고용이며, 내용의 과학적 정확성은 교사가 '상세 응답'을 보고 최종 조정합니다. 본문 1 선택지의 정답은 ③ 정답표에서 확인할 수 있습니다.</p>
+</details>
+<details><summary>⑤ 구글 시트 연동 (제출 데이터 자동 수집)</summary>
+<div id="gasStatus"></div>
+<div class="btns" style="margin-top:8px"><button class="b" id="gasTest">🔗 연결 테스트</button><button class="b ghost" id="gasCopy">📋 Apps Script 코드 복사</button></div>
+<ol class="steps">
+<li>구글 드라이브에서 <b>새 스프레드시트</b>를 만듭니다. (예: 1학년 우주기상예보 제출결과)</li>
+<li>시트 메뉴 <b>확장 프로그램 → Apps Script</b>를 엽니다.</li>
+<li>기본 코드를 모두 지우고, 위의 <b>[Apps Script 코드 복사]</b>로 복사한 코드를 붙여넣은 뒤 저장(💾)합니다.</li>
+<li><b>배포 → 새 배포 → 유형 선택(⚙) → 웹 앱</b>. "다음 사용자 인증 정보로 실행: 나", "액세스 권한이 있는 사용자: <b>모든 사용자</b>"로 설정하고 배포 → 권한 허용.</li>
+<li>표시된 <b>웹 앱 URL</b>(…/exec)을 복사해 이 HTML 파일 상단 <code>CONFIG.GAS_URL</code>의 "" 안에 붙여넣고 저장합니다.</li>
+<li>파일을 다시 열고 이 패널에서 <b>[연결 테스트]</b>를 눌러 "✅ 연결 성공"을 확인합니다.</li>
+</ol>
+<p class="tip">· 학생이 [📨 선생님께 제출하기]를 누르면 제출 시각·학생 정보·모든 응답·항목별 자동 점수·완성 대본이 시트 '제출결과'에 한 줄로 기록됩니다.<br>· 같은 학생이 다시 제출하면 기존 행이 새 내용으로 갱신되고 '제출 횟수'가 올라갑니다(스크립트의 <code>OVERWRITE_SAME_STUDENT</code>로 변경 가능). 시트의 '교사 조정 점수'·'교사 코멘트' 열은 재제출 시에도 보존됩니다.<br>· 전송에 실패하면 자동으로 기존 '복사 방식'으로 바뀌어 학생이 제출 내용을 붙여 넣어 보낼 수 있습니다.</p>
+</details>
+<div class="btns"><button class="b red" id="tLock">🔒 잠그기</button></div>
+</div>
+</div></div>
+
+<script type="text/plain" id="gasCode">
+/**
+ * ☀️ 우주 기상 예보 수행평가 — 제출 데이터 수집 스크립트 (웹앱 v7용)
+ *
+ * [설정 순서]
+ *  1) 구글 드라이브 → 새로 만들기 → Google 스프레드시트 (이름 예: 1학년 우주기상예보 제출결과)
+ *  2) 스프레드시트 메뉴: 확장 프로그램 → Apps Script
+ *  3) 편집기의 기본 코드(function myFunction...)를 모두 지우고 이 코드를 붙여넣기 → 저장(💾)
+ *  4) 오른쪽 위 [배포] → [새 배포] → 톱니바퀴(유형 선택) → [웹 앱]
+ *       · 다음 사용자 인증 정보로 실행 : 나(내 계정)
+ *       · 액세스 권한이 있는 사용자   : 모든 사용자      ← 반드시 '모든 사용자'
+ *  5) [배포] → 액세스 승인 → (고급 → 안전하지 않음으로 이동) → 허용
+ *  6) 표시된 "웹 앱 URL"(https://script.google.com/macros/s/..../exec)을 복사하여
+ *     HTML 파일 상단 CONFIG.GAS_URL 의 "" 안에 붙여넣기
+ *  7) HTML 파일을 열어 교사용 패널(🔒 교사용) → ⑤ 구글 시트 연동 → [연결 테스트]
+ *
+ * ※ 이 코드를 수정한 뒤에는 [배포] → [배포 관리] → ✏(수정) → 버전: 새 버전 → [배포] 를 해야 반영됩니다.
+ */
+
+const SHEET_NAME = "제출결과";              // 데이터가 쌓이는 시트 이름(없으면 자동 생성)
+const OVERWRITE_SAME_STUDENT = true;        // true: 같은 학생(학년반번호+이름) 재제출 시 기존 행을 갱신 / false: 매번 새 행 추가
+const TEACHER_COLS = ["교사 조정 점수", "교사 코멘트"];   // 교사가 직접 입력하는 열(재제출 시에도 보존)
+
+const HEADERS = [
+  "제출 시각", "제출 횟수", "학년반번호", "이름", "모둠/역할",
+  "기사 번호", "기사 제목", "예보 날짜",
+  "미션1 현상", "미션1 근거", "미션2 영향①", "미션2 영향②",
+  "본문1 위치(선택)", "본문1 표면(선택)", "본문1 분출(선택)", "본문1 상세 설명",
+  "본문2 선택 영향", "본문2 피해 사례", "클로징",
+  "기사 선택(1)", "미션1 현상(2)", "미션1 근거(2)", "미션2(5)", "1단계 소계(10)",
+  "본문1 선택지(3)", "본문1 상세(2)", "본문2 영향(2)", "본문2 사례(3)", "어조(5)", "2단계 소계(15)",
+  "자동 총점(25)", "미완성 항목 수", "완성 대본", "교사 확인 코드", "제출 ID", "앱 버전"
+].concat(TEACHER_COLS);
+
+/* 연결 테스트(GET) */
+function doGet(e) {
+  try {
+    const sh = getSheet_();
+    return out_({ ok: true, version: "v7", sheet: sh.getName(),
+                  spreadsheet: SpreadsheetApp.getActive().getName(),
+                  rows: Math.max(0, sh.getLastRow() - 1) });
+  } catch (err) { return out_({ ok: false, error: String(err) }); }
+}
+
+/* 학생 제출(POST) */
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+    const p = JSON.parse(e.postData.contents);
+    const sh = getSheet_();
+    const n = HEADERS.length;
+    const data = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, n).getValues() : [];
+
+    // 같은 제출(ID)이 두 번 도착하면 한 번만 기록
+    const idCol = HEADERS.indexOf("제출 ID");
+    if (p.submissionId) {
+      for (let i = 0; i < data.length; i++) {
+        if (String(data[i][idCol]) === String(p.submissionId)) return out_({ ok: true, duplicate: true, row: i + 2 });
+      }
+    }
+
+    const row = buildRow_(p);
+    let target = -1;
+    if (OVERWRITE_SAME_STUDENT) {
+      const cCol = HEADERS.indexOf("학년반번호"), nCol = HEADERS.indexOf("이름");
+      for (let i = 0; i < data.length; i++) {
+        if (norm_(data[i][cCol]) === norm_(p.stuClass) && norm_(data[i][nCol]) === norm_(p.stuName)) target = i;
+      }
+    }
+    if (target >= 0) {
+      const old = data[target];
+      row[HEADERS.indexOf("제출 횟수")] = (Number(old[HEADERS.indexOf("제출 횟수")]) || 1) + 1;
+      TEACHER_COLS.forEach(c => { const k = HEADERS.indexOf(c); row[k] = old[k]; });
+      sh.getRange(target + 2, 1, 1, n).setValues([row]);
+      return out_({ ok: true, updated: true, row: target + 2, count: row[HEADERS.indexOf("제출 횟수")] });
+    }
+    sh.appendRow(row);
+    return out_({ ok: true, updated: false, row: sh.getLastRow(), count: 1 });
+  } catch (err) {
+    return out_({ ok: false, error: String(err) });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
+  }
+}
+
+function buildRow_(p) {
+  const a = p.answers || {}, s = p.score || {};
+  const m = {
+    "제출 시각": p.submittedAt ? new Date(p.submittedAt) : new Date(),
+    "제출 횟수": 1,
+    "학년반번호": p.stuClass || "", "이름": p.stuName || "", "모둠/역할": p.stuGroup || "",
+    "기사 번호": p.articleNum || "", "기사 제목": p.articleTitle || "", "예보 날짜": p.forecastDate || "",
+    "미션1 현상": a.m1phen || "", "미션1 근거": a.m1reason || "", "미션2 영향①": a.m2a || "", "미션2 영향②": a.m2b || "",
+    "본문1 위치(선택)": a.b1loc || "", "본문1 표면(선택)": a.b1surf || "", "본문1 분출(선택)": a.b1erupt || "", "본문1 상세 설명": a.b1detail || "",
+    "본문2 선택 영향": (a.impacts || []).join(" / "), "본문2 피해 사례": a.b2case || "", "클로징": a.closing || "",
+    "기사 선택(1)": num_(s.sel), "미션1 현상(2)": num_(s.m1), "미션1 근거(2)": num_(s.m1r), "미션2(5)": num_(s.m2), "1단계 소계(10)": num_(s.s1),
+    "본문1 선택지(3)": num_(s.b1f), "본문1 상세(2)": num_(s.b1d), "본문2 영향(2)": num_(s.b2i), "본문2 사례(3)": num_(s.b2c), "어조(5)": num_(s.tone), "2단계 소계(15)": num_(s.s2),
+    "자동 총점(25)": num_(s.total), "미완성 항목 수": num_(p.incomplete),
+    "완성 대본": p.scriptText || "", "교사 확인 코드": p.code || "", "제출 ID": p.submissionId || "", "앱 버전": p.version || "",
+    "교사 조정 점수": "", "교사 코멘트": ""
+  };
+  return HEADERS.map(h => (m[h] === undefined ? "" : m[h]));
+}
+
+function getSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(SHEET_NAME);
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight("bold").setBackground("#fff3d6");
+    sh.setFrozenRows(1);
+    sh.setFrozenColumns(4);
+    sh.getRange("A:A").setNumberFormat("yyyy-mm-dd hh:mm:ss");
+    sh.autoResizeColumns(1, 8);
+  }
+  return sh;
+}
+function num_(v) { return (v === undefined || v === null || v === "") ? "" : Number(v); }
+function norm_(v) { return String(v || "").replace(/\s+/g, "").toLowerCase(); }
+function out_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+</script>
+
+<script>
+/* ===================== 교사 설정 ===================== */
+const CONFIG = {
+  TEACHER_PIN: "2580",          // 교사용 패널 PIN (꼭 변경하세요)
+  GAS_URL: "https://script.google.com/macros/s/AKfycbzkAGXkWbznavmTFAGNVJZ4V15BeAKdxQUyKZmXo4uFT1SImuqrepqRkxoaRUNI891y/exec",                  // ★ 구글 시트 연동: Apps Script 웹 앱 URL(https://script.google.com/macros/s/.../exec)을 "" 안에 붙여넣기
+                                //   (설정 방법: 교사용 패널 → ⑤ 구글 시트 연동 참고. 비워 두면 '복사 방식'으로 제출됩니다)
+  FORM: { url: "", entries: { stuClass:"", stuName:"", stuGroup:"", article:"", total:"", script:"", code:"" } },
+  STORAGE_KEY: "swx_v7",
+  MIN: { m1reason:20, m2a:20, m2b:20, b1detail:20, b2case:20, closing:20 }   // 최소 글자 수 (경고 표시 기준)
+};
+/* ==================================================== */
+
+const PHENOMENA = ["흑점","플레어","홍염","태양풍","코로나 질량 방출(CME)","지자기 폭풍"];
+
+/* 기사 데이터
+   date   : 오프닝에 들어가는 예보 날짜(기사 속 사건 날짜)
+   s2.loc / surf / erupt : 본문 1 4지선다 (opts 4개 중 ans 1개만 기사 내용과 일치)
+   s2.impacts : 본문 2 체크박스(기사에 실제로 보고된 영향만)
+   s2.hint    : 입력란 위에 보여 주는 기사 속 정보 칩 */
+const ARTICLES = [
+ {id:"a1",num:1,icon:"📜",tag:"역대급 사건",title:"전신선에 불꽃이 튀었다: 1859년 캐링턴 사건",meta:"과학사 특집 | 역대 가장 강력한 태양 폭풍",date:"1859년 9월 1일",
+  paras:[
+   "1859년 9월 1일, 영국의 아마추어 천문학자 리처드 캐링턴은 망원경으로 태양을 관측하다가 거대한 흑점군 위에서 눈부신 흰빛이 번쩍이는 것을 목격했다. 이것은 인류가 처음으로 기록한 태양 플레어였다.",
+   "불과 17.6시간 뒤, 태양에서 쏟아져 나온 엄청난 양의 전기 입자(코로나 질량 방출, CME)가 지구에 도달했다. 평소보다 훨씬 빠른 속도였다. 지구의 자기장이 크게 흔들리는 지자기 폭풍이 일어났고, 보통 극지방에서만 보이는 오로라가 쿠바, 하와이, 콜롬비아 같은 열대 지방에서도 관측되었다. 미국 북동부에서는 밤에도 신문을 읽을 수 있을 정도로 하늘이 밝았다.",
+   "당시 최신 기술이었던 전신망은 큰 혼란에 빠졌다. 전신선에 유도 전류가 흘러 전신기사가 감전되거나 종이에 불이 붙는 사고가 잇따랐다. 일부 전신국에서는 배터리를 뽑았는데도 오로라가 만든 전류만으로 메시지가 전송되는 신기한 일도 벌어졌다.",
+   "과학자들은 캐링턴 사건 규모의 태양 폭풍이 오늘날 발생하면 위성, 전력망, 인터넷이 동시에 마비되어 수조 원 이상의 피해가 날 수 있다고 경고한다. 그래서 각국은 태양 활동을 24시간 감시하는 우주 기상 예보 체계를 운영하고 있다."],
+  terms:["흑점군","흑점","플레어","코로나 질량 방출","CME","지자기 폭풍","오로라","유도 전류","전신망","우주 기상"],
+  key:{core:["플레어","흑점"],related:["지자기 폭풍","코로나 질량 방출(CME)"]},
+  s2:{
+   loc:{opts:["중심핵(내부)","표면(거대한 흑점군 부근)","지구에서 보이지 않는 뒷면","코로나 바깥 우주 공간"],ans:"표면(거대한 흑점군 부근)"},
+   surf:{opts:["거대한 흑점군","지구 지름 15배의 흑점군 AR3664","흑점 486번과 488번","흑점이 전혀 없는 조용한 표면"],ans:"거대한 흑점군"},
+   erupt:{opts:["X28급 플레어","인류가 처음 기록한 태양 플레어(눈부신 흰빛)와 코로나 질량 방출(CME)","X급 플레어의 연쇄 폭발","홍염만 솟아오르고 플레어는 없음"],ans:"인류가 처음 기록한 태양 플레어(눈부신 흰빛)와 코로나 질량 방출(CME)"},
+   impacts:["열대 지방(쿠바·하와이·콜롬비아)에서 오로라 관측","전신선 유도 전류로 전신기사 감전","전신국 종이에 불이 붙는 화재","배터리 없이 전신 메시지가 전송되는 혼란","오늘날이면 위성·전력망·인터넷 동시 마비 우려"],
+   hint:{detail:["1859년 9월 1일 관측","거대한 흑점군 위 눈부신 흰빛","17.6시간 뒤 CME 지구 도달","평소보다 훨씬 빠른 속도"],
+         caseh:["전신기사 감전","종이에 불","쿠바·하와이·콜롬비아 오로라","밤에도 신문을 읽을 정도","수조 원 피해 경고"],
+         close:["전신·통신 기관","전력망·위성 운영 기관","24시간 우주 기상 감시"]}}},
+ {id:"a2",num:2,icon:"🛰️",tag:"최신 이슈",title:"발사 하루 만에 추락: 2022년 스타링크 위성 40기 손실",meta:"우주 산업 뉴스 | 2022년 2월",date:"2022년 2월 4일",
+  paras:[
+   "2022년 2월 3일, 스페이스X는 인터넷 서비스용 스타링크 위성 49기를 한 번에 발사했다. 위성들은 지상 약 210km의 낮은 궤도에 먼저 올려진 뒤 서서히 고도를 높일 예정이었다.",
+   "그러나 바로 다음 날, 태양에서 날아온 태양풍과 코로나 질량 방출(CME)로 인해 지자기 폭풍이 발생했다. 폭풍은 지구 상층 대기를 뜨겁게 데웠고, 공기가 팽창하면서 위성이 날아다니는 높이의 대기 밀도가 크게 높아졌다.",
+   "스페이스X는 위성이 받는 대기 저항이 평소보다 최대 50%까지 증가했다고 밝혔다. 위성들은 저항을 줄이기 위해 '안전 모드'로 몸을 옆으로 눕혔지만, 49기 중 38~40기가 끝내 고도를 높이지 못하고 대기권으로 떨어져 불타 사라졌다.",
+   "이 사건으로 수백억 원의 손실이 발생했으며, 우주 기상 예보가 위성 산업에 얼마나 중요한지 보여주는 대표 사례로 꼽힌다. 전문가들은 '약한 수준의 지자기 폭풍이었지만 낮은 궤도의 위성에는 치명적이었다'고 분석했다."],
+  terms:["태양풍","코로나 질량 방출","CME","지자기 폭풍","상층 대기","대기 밀도","대기 저항","우주 기상"],
+  key:{core:["태양풍","지자기 폭풍"],related:["코로나 질량 방출(CME)","플레어"]},
+  s2:{
+   loc:{opts:["표면(지구를 향한 쪽)","중심핵(내부)","달의 표면","지구에서 보이지 않는 뒷면"],ans:"표면(지구를 향한 쪽)"},
+   surf:{opts:["지구 지름 15배의 흑점군 AR3664","흑점 486번과 488번","태양풍을 내보내는 활동 영역","인류가 처음 기록한 거대한 흑점군"],ans:"태양풍을 내보내는 활동 영역"},
+   erupt:{opts:["X17급·X28급 초강력 플레어","태양풍과 코로나 질량 방출(CME)","인류 최초로 기록된 플레어","X급 플레어의 연쇄 폭발"],ans:"태양풍과 코로나 질량 방출(CME)"},
+   impacts:["상층 대기 팽창으로 위성 대기 저항 증가(최대 50%)","스타링크 위성 38~40기 추락·소실","수백억 원의 경제적 손실","낮은 궤도 위성의 임무 실패"],
+   hint:{detail:["2022년 2월 3일 발사, 다음 날 폭풍","위성 49기, 고도 약 210km","약한 수준의 지자기 폭풍","상층 대기 가열·팽창"],
+         caseh:["대기 저항 최대 50% 증가","49기 중 38~40기 추락","수백억 원 손실","'안전 모드'로 눕힘"],
+         close:["위성 운영 회사(스페이스X 등)","발사 일정 조정","우주 기상 예보 확인"]}}},
+ {id:"a3",num:3,icon:"🇰🇷",tag:"우리나라 영향",title:"우주전파재난 경보 발령, 항공기는 북극항로 우회",meta:"국내 뉴스 | 2024년 5월",date:"2024년 5월 11일",
+  paras:[
+   "2024년 5월, 지구 지름의 15배가 넘는 거대한 흑점군(AR3664)이 태양 표면에 나타났다. 이 흑점군에서는 며칠 사이 가장 강한 등급인 X급 플레어가 연쇄적으로 폭발했다.",
+   "우리나라 우주전파센터는 우주전파재난 '경계' 단계 경보를 발령했다. 플레어에서 나온 강한 X선이 지구 전리층을 흔들어 단파 통신에 장애가 생겼고, 일부 지역에서는 GPS 위치 오류가 보고되었다.",
+   "북극 상공을 지나는 항공기는 방사선 노출과 통신 두절 위험 때문에 북극항로를 피해 남쪽으로 우회해야 했다. 미국과 유럽에서는 농기계의 GPS 자동 운전이 멈추는 일도 있었다.",
+   "한편 5월 11일 밤에는 강원도 화천에서 붉은 오로라가 촬영되어 큰 화제가 되었다. 우리나라처럼 위도가 낮은 지역에서 오로라가 보이는 것은 매우 드문 일로, 이번 지자기 폭풍이 2003년 이후 가장 강력했음을 보여준다."],
+  terms:["흑점군","흑점","X급 플레어","플레어","우주전파재난","전리층","단파 통신","GPS","북극항로","오로라","지자기 폭풍"],
+  key:{core:["플레어","흑점"],related:["지자기 폭풍","코로나 질량 방출(CME)"]},
+  s2:{
+   loc:{opts:["지구에서 보이지 않는 뒷면","코로나 바깥 우주 공간","표면(흑점군 AR3664 지역)","중심핵(내부)"],ans:"표면(흑점군 AR3664 지역)"},
+   surf:{opts:["흑점 486번과 488번","지구 지름의 15배가 넘는 거대한 흑점군(AR3664)","태양풍을 내보내는 활동 영역","흑점이 전혀 없는 조용한 표면"],ans:"지구 지름의 15배가 넘는 거대한 흑점군(AR3664)"},
+   erupt:{opts:["가장 강한 등급인 X급 플레어의 연쇄 폭발","X28급 플레어 1회","태양풍만 약하게 발생","인류 최초로 기록된 플레어"],ans:"가장 강한 등급인 X급 플레어의 연쇄 폭발"},
+   impacts:["우주전파재난 '경계' 경보 발령","단파 통신 장애(전리층 교란)","GPS 위치 오류(농기계 자동 운전 정지)","항공기 북극항로 우회(방사선·통신 두절 위험)","강원도 화천에서 붉은 오로라 관측"],
+   hint:{detail:["2024년 5월","지구 지름의 15배 흑점군 AR3664","X급 플레어 연쇄 폭발","2003년 이후 가장 강력한 지자기 폭풍"],
+         caseh:["우주전파재난 '경계' 경보","단파 통신 장애·GPS 오류","북극항로 우회","5월 11일 화천 붉은 오로라","미국·유럽 농기계 GPS 정지"],
+         close:["항공사(북극항로 운항)","우주전파센터 경보 확인","GPS 이용자·통신 기관"]}}},
+ {id:"a4",num:4,icon:"⚡",tag:"전력망 피해",title:"90초 만에 꺼진 도시: 1989년 퀘벡 대정전",meta:"해외 뉴스 아카이브 | 1989년 3월",date:"1989년 3월 13일",
+  paras:[
+   "1989년 3월 10일, 태양 표면의 활동적인 흑점 지역에서 거대한 코로나 질량 방출(CME)이 일어났다. 수십억 톤의 전기 입자가 지구를 향해 날아오기 시작했다.",
+   "3월 13일 새벽, 입자 구름이 지구에 도달하면서 강력한 지자기 폭풍이 시작되었다. 지구 자기장이 심하게 요동치자 땅속과 긴 송전선에 유도 전류가 흘렀다. 캐나다 퀘벡주의 전력 회사 하이드로퀘벡의 보호 장치가 연달아 작동해 단 90초 만에 전력망 전체가 붕괴했다.",
+   "약 600만 명이 영하의 추위 속에서 9시간 동안 정전을 겪었다. 지하철과 공항이 멈추고 학교와 회사가 문을 닫았다. 미국 뉴저지의 발전소에서도 대형 변압기가 과열되어 타 버렸다.",
+   "이날 밤 오로라는 멕시코와 미국 텍사스까지 내려와 관측되었다. 퀘벡 대정전은 태양 폭풍이 현대 전력망에 어떤 피해를 줄 수 있는지 처음으로 분명히 보여준 사건으로, 이후 전력 회사들은 우주 기상 경보에 따라 전력망을 보호하는 대책을 마련하게 되었다."],
+  terms:["흑점","코로나 질량 방출","CME","지자기 폭풍","유도 전류","송전선","전력망","변압기","오로라","우주 기상"],
+  key:{core:["코로나 질량 방출(CME)","지자기 폭풍"],related:["플레어","흑점","태양풍"]},
+  s2:{
+   loc:{opts:["중심핵(내부)","표면(지구를 향한 쪽)","코로나 바깥 우주 공간","지구에서 보이지 않는 뒷면"],ans:"표면(지구를 향한 쪽)"},
+   surf:{opts:["흑점 486번과 488번","활동적인 흑점 지역","지구 지름 15배의 흑점군 AR3664","흑점이 전혀 없는 조용한 표면"],ans:"활동적인 흑점 지역"},
+   erupt:{opts:["X28급 플레어","인류 최초로 기록된 플레어","수십억 톤의 입자를 쏟아낸 거대한 코로나 질량 방출(CME)","홍염만 솟아오르고 폭발은 없음"],ans:"수십억 톤의 입자를 쏟아낸 거대한 코로나 질량 방출(CME)"},
+   impacts:["땅속·송전선 유도 전류","퀘벡 전력망 90초 만에 붕괴(정전)","약 600만 명 9시간 정전","지하철·공항 정지, 학교·회사 휴무","미국 뉴저지 변압기 과열·소실","멕시코·텍사스까지 오로라"],
+   hint:{detail:["3월 10일 CME 발생 → 3월 13일 새벽 도달","수십억 톤의 전기 입자","강력한 지자기 폭풍","땅속·송전선 유도 전류"],
+         caseh:["90초 만에 전력망 붕괴","600만 명, 9시간 정전","영하의 추위","뉴저지 변압기 과열","멕시코·텍사스 오로라"],
+         close:["전력 회사(하이드로퀘벡 등)","전력망 보호 장치 점검","우주 기상 경보에 따른 대응"]}}},
+ {id:"a5",num:5,icon:"🎃",tag:"위성·우주인 피해",title:"역대 최강 X28 플레어: 2003년 핼러윈 태양 폭풍",meta:"과학 뉴스 | 2003년 10~11월",date:"2003년 11월 4일",
+  paras:[
+   "2003년 10월 말, 태양에 유난히 큰 흑점 두 개(486번, 488번)가 나타났다. 10월 28일 흑점 486에서 X17급의 초강력 플레어가 터졌고, 거대한 홍염과 함께 코로나 질량 방출이 지구를 향했다.",
+   "11월 4일에는 관측 장비의 측정 한계를 넘어선 X28급 플레어가 발생했다. 이것은 인류가 측정한 가장 강력한 플레어로 기록되어 있다. 핼러윈 시기에 일어난 이 연속 폭발을 과학자들은 '핼러윈 태양 폭풍'이라고 부른다.",
+   "피해는 우주 곳곳에서 나타났다. 일본의 지구 관측 위성 '미도리 2호'가 고장나 임무를 끝내지 못했고, 국제우주정거장(ISS)의 우주인들은 방사선을 피해 보호된 구역으로 대피했다. 화성 탐사선 '오디세이'의 방사선 측정 장비도 작동을 멈췄다.",
+   "지구에서는 스웨덴 말뫼 지역이 정전되었고, 항공기들은 북극 항로를 우회했으며, 미국 남부 플로리다와 텍사스에서도 오로라가 관측되었다. GPS 오류로 항공과 해상 운항에도 차질이 생겼다."],
+  terms:["흑점","X17급","X28급","플레어","홍염","코로나 질량 방출","국제우주정거장","방사선","오로라","GPS","정전"],
+  key:{core:["플레어"],related:["흑점","코로나 질량 방출(CME)","지자기 폭풍"]},
+  s2:{
+   loc:{opts:["중심핵(내부)","표면(흑점 486번 부근)","달의 표면","지구에서 보이지 않는 뒷면"],ans:"표면(흑점 486번 부근)"},
+   surf:{opts:["유난히 큰 흑점 두 개(486번, 488번)","지구 지름 15배의 흑점군 AR3664","태양풍을 내보내는 활동 영역","흑점이 전혀 없는 조용한 표면"],ans:"유난히 큰 흑점 두 개(486번, 488번)"},
+   erupt:{opts:["태양풍만 약하게 발생","X급 플레어의 연쇄 폭발(AR3664)","X17급·X28급 초강력 플레어와 거대한 홍염, 코로나 질량 방출","인류 최초로 기록된 플레어"],ans:"X17급·X28급 초강력 플레어와 거대한 홍염, 코로나 질량 방출"},
+   impacts:["일본 위성 '미도리 2호' 고장","국제우주정거장(ISS) 우주인 방사선 대피","화성 탐사선 '오디세이' 장비 정지","스웨덴 말뫼 지역 정전","항공기 북극 항로 우회","GPS 오류로 항공·해상 운항 차질","플로리다·텍사스 오로라"],
+   hint:{detail:["10월 28일 X17급 → 11월 4일 X28급","측정 한계를 넘은 역대 최강 플레어","흑점 486번·488번","거대한 홍염과 CME"],
+         caseh:["미도리 2호 고장","ISS 우주인 대피","오디세이 장비 정지","말뫼 정전","북극 항로 우회","플로리다·텍사스 오로라"],
+         close:["우주인·위성 운영 기관","항공사","GPS 이용 선박·항공기"]}}}
+];
+
+/* ===================== 상태 ===================== */
+const $ = id => document.getElementById(id);
+const state = { article:"", impacts:{} };
+const FIELDS = ["stuClass","stuName","stuGroup","m1phen","m1reason","m2a","m2b","b1loc","b1surf","b1erupt","b1detail","b2case","closing"];
+const WORK_FIELDS = ["m1phen","m1reason","m2a","m2b","b1loc","b1surf","b1erupt","b1detail","b2case","closing"];
+let synth = window.speechSynthesis || null, ttsParas = [];
+let pendingLoad = null;
+let lastSubmit = null;   // 마지막 제출 기록 {at, who, mode}
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(t._tm);t._tm=setTimeout(()=>t.style.display="none",2200);}
+function val(id){return ($(id).value||"").trim();}
+function today(){const d=new Date();return d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일";}
+function getArticle(){return ARTICLES.find(a=>a.id===state.article)||null;}
+function hasTerm(txt,a){return !!a&&a.terms.some(t=>txt.includes(t));}
+
+/* ===================== 렌더 ===================== */
+function renderCards(){
+  const box=$("cards"); box.innerHTML="";
+  ARTICLES.forEach(a=>{
+    const b=document.createElement("button"); b.type="button"; b.className="acard"+(a.id===state.article?" on":""); b.dataset.id=a.id;
+    const ic=document.createElement("div"); ic.className="ic"; ic.textContent=a.icon;
+    const tg=document.createElement("div"); tg.className="tag"; tg.textContent="[기사 "+a.num+"] "+a.tag;
+    const tt=document.createElement("div"); tt.className="tt"; tt.textContent=a.title;
+    b.appendChild(ic); b.appendChild(tg); b.appendChild(tt);
+    b.addEventListener("click",()=>chooseArticle(a.id));
+    box.appendChild(b);
+  });
+}
+function hasWork(){return WORK_FIELDS.some(id=>!!val(id))||Object.values(state.impacts).some(Boolean);}
+function clearWork(){WORK_FIELDS.forEach(id=>$(id).value=""); state.impacts={};}
+function chooseArticle(id){
+  if(state.article===id) return;
+  if(state.article&&hasWork()){
+    if(!confirm("기사를 바꾸면 1단계 미션과 2단계 대본에 쓴 내용이 모두 지워집니다. 기사를 바꿀까요?")) return;
+    clearWork();
+  }
+  state.article=id; renderCards(); renderArticle(); renderS2(); update();
+  $("article").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function highlight(text,terms){
+  let html=esc(text);
+  const sorted=[...terms].sort((x,y)=>y.length-x.length);
+  sorted.forEach(t=>{const re=new RegExp(esc(t).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"g"); html=html.replace(re,"\u0001"+esc(t)+"\u0002");});
+  return html.replace(/\u0001/g,"<mark>").replace(/\u0002/g,"</mark>");
+}
+function renderArticle(){
+  const a=getArticle(), box=$("article");
+  if(!a){box.className="article";box.innerHTML="";return;}
+  box.className="article show";
+  box.innerHTML="";
+  const h=document.createElement("h3"); h.textContent="[기사 "+a.num+"] "+a.title;
+  const m=document.createElement("div"); m.className="meta"; m.textContent=a.meta+"  |  사건 날짜(예보 날짜): "+a.date;
+  box.appendChild(h); box.appendChild(m);
+  a.paras.forEach(p=>{const el=document.createElement("p"); el.innerHTML=highlight(p,a.terms); box.appendChild(el);});
+}
+function fillSelect(id,q,label){
+  const sel=$(id); const cur=sel.value; sel.innerHTML="";
+  const o0=document.createElement("option"); o0.value=""; o0.textContent="▼ "+label+" 선택"; sel.appendChild(o0);
+  if(q){ q.opts.forEach((t,i)=>{const o=document.createElement("option");o.value=t;o.textContent=(i+1)+". "+t;sel.appendChild(o);}); }
+  if(q&&q.opts.includes(cur)) sel.value=cur; else sel.value="";
+}
+function chips(id,arr){ $(id).innerHTML=arr&&arr.length?"<b>기사 속 정보</b> "+arr.map(x=>"<span>"+esc(x)+"</span>").join(""):""; }
+function renderS2(){
+  const a=getArticle(); const s=a?a.s2:null;
+  fillSelect("b1loc",s?s.loc:null,"위치");
+  fillSelect("b1surf",s?s.surf:null,"표면 현상");
+  fillSelect("b1erupt",s?s.erupt:null,"분출 현상");
+  const ib=$("impacts"); ib.innerHTML="";
+  (s?s.impacts:[]).forEach((im,idx)=>{
+    const l=document.createElement("label"); l.className="chk"; const i=document.createElement("input"); i.type="checkbox"; i.id="im_"+idx; i.checked=!!state.impacts[im];
+    i.addEventListener("change",()=>{state.impacts[im]=i.checked;update();});
+    l.appendChild(i); l.appendChild(document.createTextNode(im)); ib.appendChild(l);
+  });
+  chips("hintDetail",s?s.hint.detail:[]); chips("hintCase",s?s.hint.caseh:[]); chips("hintClose",s?s.hint.close:[]);
+  const locked=!a;
+  $("missionBox").classList.toggle("locked",locked); $("step2Body").classList.toggle("locked",locked);
+  $("lock1").style.display=locked?"block":"none"; $("lock2").style.display=locked?"block":"none";
+}
+function renderStatic(){
+  const sel=$("m1phen"); PHENOMENA.forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o);});
+  FIELDS.forEach(id=>{$(id).addEventListener("input",update);$(id).addEventListener("change",update);});
+}
+
+/* ===================== 글자 수 경고 ===================== */
+function updateCounters(){
+  const a=getArticle();
+  Object.keys(CONFIG.MIN).forEach(id=>{
+    const n=val(id), len=n.length, min=CONFIG.MIN[id], el=$("cnt_"+id), inp=$(id);
+    let msg, bad=len<min;
+    if(len===0) msg="⚠ 아직 작성하지 않았습니다 (최소 "+min+"자)";
+    else if(bad) msg="⚠ "+len+"자 / 최소 "+min+"자 — "+(min-len)+"자 더 써 주세요";
+    else msg="✔ "+len+"자 (최소 "+min+"자 충족)";
+    if(id==="b1detail"&&len>0&&a){ msg+=hasTerm(n,a)?" · 기사 핵심 용어 포함 ✔":" · ⚠ 기사의 핵심 용어(노란 표시)를 넣어 주세요"; }
+    if(id==="b2case"&&len>0){ msg+=/\d/.test(n)?" · 숫자 포함 ✔":" · ⚠ 기사 속 숫자(연도·인원·시간 등)를 넣어 주세요"; }
+    el.textContent=msg; el.className="cnt "+(bad?"bad":"ok");
+    inp.classList.toggle("bad",bad&&len>0);
+  });
+}
+
+/* ===================== 대본 생성 ===================== */
+function selectedImpacts(){const a=getArticle(); return a?a.s2.impacts.filter(im=>state.impacts[im]):[];}
+function buildScript(){
+  const name=val("stuName")||"○○○";
+  const a=getArticle();
+  const date=a?a.date:"[기사를 선택하면 날짜가 표시됩니다]";
+  const open="시청자 여러분, 안녕하십니까? 우주 기상캐스터 "+name+"입니다. "+date+" 우주 기상 예보를 전해 드리겠습니다."+(a?" 오늘은 '"+a.title+"' 상황을 바탕으로 태양 활동을 살펴보겠습니다.":"");
+  const loc=val("b1loc")||"[위치]", surf=val("b1surf")||"[표면 현상]", er=val("b1erupt")||"[분출 현상]";
+  const b1="현재 태양의 "+loc+"에서는 "+surf+"이(가) 관측되고 있습니다. 이곳에서 "+er+"이(가) 발생하였습니다."+(val("b1detail")?" "+val("b1detail"):"");
+  const imps=selectedImpacts();
+  const b2=(imps.length?"이에 따라 "+imps.join(", ")+" 등이 우려됩니다. ":"")+(val("b2case")||"[실제 피해 사례를 작성하세요]");
+  const close=val("closing")||"[대비책과 마무리 인사를 작성하세요]";
+  return {open,b1,b2,close};
+}
+function scriptText(){const s=buildScript();return "[오프닝] "+s.open+"\n\n[본문 1] "+s.b1+"\n\n[본문 2] "+s.b2+"\n\n[클로징] "+s.close;}
+
+/* ===================== 채점 (화면 비표시, 교사 전용) ===================== */
+function toneScore(){
+  const txt=[val("b1detail"),val("b2case"),val("closing")].join(" ");
+  const sents=txt.split(/[.!?。\n]+/).map(s=>s.trim()).filter(s=>s.length>1);
+  if(sents.length<2) return 0;
+  const re=/(입니다|습니다|ㅂ니다|바랍니다|하십시오|하세요|해 주세요|해주세요|주시기|겠습니다|드립니다|있습니다|됩니다|십니까|니까|시오|요)$/;
+  const ok=sents.filter(s=>re.test(s.replace(/["'”’)\]]+$/,""))).length;
+  const r=ok/sents.length;
+  return r>=0.9?5:r>=0.7?4:r>=0.5?3:r>=0.3?2:1;
+}
+function computeScore(){
+  const a=getArticle();
+  const sel=a?1:0;
+  let m1=0; if(a&&val("m1phen")){ if(a.key.core.includes(val("m1phen"))) m1=2; else if(a.key.related.includes(val("m1phen"))) m1=1; }
+  const rl=val("m1reason").length; const m1r=rl>=20?2:rl>=10?1:0;
+  const m2one=v=>v.length>=20?2.5:v.length>=10?1.5:0;
+  const m2=m2one(val("m2a"))+m2one(val("m2b"));
+  const s1=sel+m1+m1r+m2;
+  let b1f=0; if(a){ if(val("b1loc")===a.s2.loc.ans) b1f++; if(val("b1surf")===a.s2.surf.ans) b1f++; if(val("b1erupt")===a.s2.erupt.ans) b1f++; }
+  const dt=val("b1detail"); const b1d=dt.length>=20&&hasTerm(dt,a)?2:dt.length>=20?1:0;
+  const b1=b1f+b1d;
+  const n=selectedImpacts().length; const b2i=n>=2?2:n===1?1:0;
+  const cs=val("b2case"); const b2c=cs.length>=20&&/\d/.test(cs)?3:cs.length>=20?2:cs.length>=10?1:0;
+  const b2=b2i+b2c;
+  const tone=toneScore();
+  const s2=b1+b2+tone;
+  return {sel,m1,m1r,m2,s1,b1f,b1d,b1,b2i,b2c,b2,tone,s2,total:s1+s2};
+}
+
+/* ===================== 진행률 (학생 화면) ===================== */
+function checklist(){
+  return [
+    ["학생 정보",!!val("stuClass")&&!!val("stuName")],["기사 선택",!!getArticle()],["미션1 현상",!!val("m1phen")],["미션1 근거",val("m1reason").length>=CONFIG.MIN.m1reason],
+    ["미션2 영향①",val("m2a").length>=CONFIG.MIN.m2a],["미션2 영향②",val("m2b").length>=CONFIG.MIN.m2b],
+    ["본문1 위치",!!val("b1loc")],["본문1 표면 현상",!!val("b1surf")],["본문1 분출 현상",!!val("b1erupt")],["본문1 상세 설명",val("b1detail").length>=CONFIG.MIN.b1detail],
+    ["본문2 영향 선택",selectedImpacts().length>0],["본문2 피해 사례",val("b2case").length>=CONFIG.MIN.b2case],["클로징",val("closing").length>=CONFIG.MIN.closing],["모둠/역할",!!val("stuGroup")]
+  ];
+}
+function update(){
+  const items=checklist(); const done=items.filter(i=>i[1]).length;
+  $("pbar").style.width=Math.round(done/items.length*100)+"%"; $("ptext").textContent=done+" / "+items.length+" 항목";
+  const s=buildScript();
+  $("pOpen").innerHTML="<b>미리보기</b> "+esc(s.open);
+  $("pB1").innerHTML="<b>미리보기</b> "+esc(s.b1);
+  $("pB2").innerHTML="<b>미리보기</b> "+esc(s.b2);
+  $("pClose").innerHTML="<b>미리보기</b> "+esc(s.close);
+  updateCounters();
+  const td=items.filter(i=>!i[1]);
+  $("todo").innerHTML=td.length?"아직 완성하지 않은 항목(글자 수 미달 포함): "+td.map(i=>"<span>"+esc(i[0])+"</span>").join(""):"✅ 모든 항목을 작성했습니다. 완성본을 확인하고 제출하세요.";
+  save();
+}
+
+/* ===================== 저장 ===================== */
+function save(){
+  const d={article:state.article,impacts:state.impacts,last:lastSubmit,f:{}};
+  FIELDS.forEach(id=>d.f[id]=$(id).value);
+  try{localStorage.setItem(CONFIG.STORAGE_KEY,JSON.stringify(d));}catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)||"null"); if(!d) return;
+    state.article=d.article||""; state.impacts=d.impacts||{}; lastSubmit=d.last||null;
+    pendingLoad=d.f||{};
+    Object.keys(pendingLoad).forEach(id=>{const el=$(id); if(el&&el.tagName!=="SELECT") el.value=pendingLoad[id];});
+    const m=$("m1phen"); if(pendingLoad.m1phen) m.value=pendingLoad.m1phen;
+  }catch(e){}
+}
+function applyLoadedSelects(){
+  if(!pendingLoad) return;
+  ["b1loc","b1surf","b1erupt"].forEach(id=>{const el=$(id); const v=pendingLoad[id]; if(v&&[...el.options].some(o=>o.value===v)) el.value=v;});
+  pendingLoad=null;
+}
+
+/* ===================== 3단계 ===================== */
+function renderFinal(){
+  const s=buildScript(), a=getArticle(), box=$("final");
+  box.innerHTML="";
+  const h=document.createElement("h3"); h.textContent="☀️ 우주 기상 예보"+(a?" — "+a.date:""); box.appendChild(h);
+  const fm=document.createElement("div"); fm.className="fm";
+  fm.textContent=[val("stuClass"),val("stuName"),val("stuGroup")].filter(Boolean).join(" · ")+(a?"  |  참고 기사: [기사 "+a.num+"] "+a.title+"  |  예보 날짜: "+a.date:"")+"  |  작성일: "+today();
+  box.appendChild(fm);
+  ttsParas=[];
+  [["오프닝",s.open],["본문 1",s.b1],["본문 2",s.b2],["클로징",s.close]].forEach(([lb,tx],i)=>{
+    const p=document.createElement("p"); p.id="fp"+i; const b=document.createElement("span"); b.className="lb"; b.textContent="["+lb+"]";
+    p.appendChild(b); p.appendChild(document.createTextNode(tx)); box.appendChild(p); ttsParas.push(tx);
+  });
+  box.className="final show";
+  ["btnPrint","btnCopy","btnSubmit","btnTTS"].forEach(id=>$(id).disabled=false);
+}
+function encodeCode(payload){
+  const json=JSON.stringify(payload);
+  const b64=btoa(unescape(encodeURIComponent(json)));
+  return "SWX1-"+b64.split("").reverse().join("");
+}
+function decodeCode(code){
+  code=code.trim(); if(!code.startsWith("SWX1-")) throw new Error("형식 오류");
+  const b64=code.slice(5).split("").reverse().join("");
+  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+}
+function answers(){
+  const o={}; FIELDS.forEach(id=>o[id]=val(id));
+  o.impacts=selectedImpacts(); return o;
+}
+function newId(){return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);}
+function payload(){
+  const a=getArticle(); const sc=computeScore(); const an=answers();
+  const stu={stuClass:val("stuClass"),stuName:val("stuName"),stuGroup:val("stuGroup")};
+  const articleTitle=a?"[기사 "+a.num+"] "+a.title:"";
+  const code=encodeCode({stu:[stu.stuClass,stu.stuName,stu.stuGroup],art:articleTitle,score:sc,answers:an});
+  return Object.assign(stu,{
+    type:"submit", version:"v7", submissionId:newId(), submittedAt:new Date().toISOString(),
+    articleNum:a?a.num:"", articleTitle, forecastDate:a?a.date:"",
+    score:sc, answers:an, scriptText:scriptText(), code,
+    incomplete:checklist().filter(i=>!i[1]).length
+  });
+}
+function nowStr(){const d=new Date();const z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+" "+z(d.getHours())+":"+z(d.getMinutes());}
+function setStat(cls,html){const el=$("sstat");el.className="sstat show "+cls;el.innerHTML=html;}
+function showLastSubmit(){
+  if(!lastSubmit) return;
+  setStat("ok","✅ 마지막 제출: "+esc(lastSubmit.who||"")+" · "+esc(lastSubmit.at||"")+(lastSubmit.mode==="sheet"?" (구글 시트로 전송됨)":" (복사 방식)")+" — 내용을 고친 뒤 다시 제출하면 최신 내용으로 갱신됩니다.");
+}
+/* 구글 시트(Apps Script)로 전송: 1차는 응답을 읽어 확인, CORS로 막히면 2차로 응답 없이 전송 */
+async function postToSheet(p){
+  const body=JSON.stringify(p);
+  try{
+    const r=await fetch(CONFIG.GAS_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body,redirect:"follow"});
+    const t=await r.text(); let j=null; try{j=JSON.parse(t);}catch(e){}
+    if(j&&j.ok) return {ok:true,res:j};
+    if(j&&j.ok===false) return {ok:false,msg:j.error||"서버 오류"};
+    return {ok:true,res:null,unverified:true};
+  }catch(e){
+    try{
+      await fetch(CONFIG.GAS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body});
+      return {ok:true,res:null,unverified:true};
+    }catch(e2){ return {ok:false,msg:"네트워크 오류 ("+(e2.message||e2)+")"}; }
+  }
+}
+function copyText(t,msg){
+  const done=()=>toast(msg||"복사되었습니다");
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));}else fallbackCopy(t,done);
+}
+function fallbackCopy(t,done){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){prompt("아래 내용을 복사하세요",t);}document.body.removeChild(ta);}
+
+async function submit(){
+  if(!val("stuName")||!val("stuClass")){toast("학년/반/번호와 이름을 먼저 입력하세요");$("stuName").focus();return;}
+  const miss=checklist().filter(i=>!i[1]);
+  if(miss.length&&!confirm("아직 완성하지 않은 항목이 "+miss.length+"개 있습니다.\n("+miss.map(i=>i[0]).join(", ")+")\n\n그래도 지금 제출할까요?")) return;
+  const p=payload();
+  const who=p.stuClass+" "+p.stuName;
+
+  /* ① 구글 시트 자동 전송 */
+  if(CONFIG.GAS_URL){
+    const btn=$("btnSubmit"); const old=btn.textContent; btn.disabled=true; btn.textContent="⏳ 전송 중...";
+    setStat("busy","⏳ 선생님의 구글 시트로 전송하는 중입니다. 잠시만 기다려 주세요.");
+    const r=await postToSheet(p);
+    btn.disabled=false; btn.textContent=old;
+    if(r.ok){
+      lastSubmit={at:nowStr(),who,mode:"sheet"}; save();
+      let msg="✅ 제출 완료 — "+esc(who)+" · "+esc(lastSubmit.at);
+      if(r.res&&r.res.duplicate) msg+=" (이미 같은 내용이 접수되어 있습니다)";
+      else if(r.res&&r.res.updated) msg+=" (이전 제출을 새 내용으로 갱신했습니다 · "+esc(r.res.count||"")+"회차)";
+      if(r.unverified) msg+="<br>※ 전송은 되었지만 서버 응답을 확인하지 못했습니다. 선생님께 접수 여부를 확인해 주세요.";
+      msg+="<br>내용을 고친 뒤 다시 제출하면 최신 내용으로 갱신됩니다.";
+      setStat("ok",msg); toast("선생님께 제출되었습니다!"); return;
+    }
+    setStat("err","❌ 구글 시트 전송에 실패했습니다. ("+esc(r.msg||"")+")<br>대신 제출 내용이 클립보드에 복사되었습니다. 선생님께 붙여 넣어 보내 주세요.");
+    toast("전송 실패. 복사 방식으로 제출합니다");
+  }
+
+  /* ② 구글 폼(선택) */
+  if(CONFIG.FORM.url){
+    const e=CONFIG.FORM.entries; const u=new URL(CONFIG.FORM.url); const q=u.searchParams; q.set("usp","pp_url");
+    if(e.stuClass)q.set("entry."+e.stuClass,p.stuClass); if(e.stuName)q.set("entry."+e.stuName,p.stuName); if(e.stuGroup)q.set("entry."+e.stuGroup,p.stuGroup);
+    if(e.article)q.set("entry."+e.article,p.articleTitle); if(e.script)q.set("entry."+e.script,p.scriptText); if(e.code)q.set("entry."+e.code,p.code);
+    lastSubmit={at:nowStr(),who,mode:"form"}; save();
+    window.open(u.toString(),"_blank"); return;
+  }
+
+  /* ③ 복사 방식(기본/대체) */
+  const txt="■ 우주 기상 예보 수행평가 제출\n학생: "+p.stuClass+" "+p.stuName+" ("+p.stuGroup+")\n선택 기사: "+p.articleTitle+"\n\n"+p.scriptText+"\n\n■ 교사 확인 코드 (수정하지 마세요)\n"+p.code;
+  lastSubmit={at:nowStr(),who,mode:"copy"}; save();
+  if(!CONFIG.GAS_URL) setStat("ok","📋 제출 내용이 복사되었습니다 — "+esc(who)+" · "+esc(lastSubmit.at)+"<br>선생님께(메신저·메일·학급 게시판 등) 붙여 넣어 보내 주세요.");
+  copyText(txt,"제출 내용이 복사되었습니다. 선생님께 붙여 넣어 보내세요!");
+}
+
+/* ===================== TTS ===================== */
+function loadVoices(){
+  if(!synth) return; const sel=$("voiceSel"); sel.innerHTML="";
+  const vs=synth.getVoices(); const ko=vs.filter(v=>/ko/i.test(v.lang)); const list=ko.length?ko:vs;
+  list.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";sel.appendChild(o);});
+  if(!list.length){const o=document.createElement("option");o.textContent="사용 가능한 음성이 없습니다";sel.appendChild(o);}
+}
+function ttsPlay(){
+  if(!synth){toast("이 브라우저는 음성 합성을 지원하지 않습니다");return;}
+  if(synth.paused){synth.resume();return;}
+  synth.cancel(); const vname=$("voiceSel").value; const v=synth.getVoices().find(x=>x.name===vname);
+  ttsParas.forEach((t,i)=>{
+    const u=new SpeechSynthesisUtterance(t); if(v) u.voice=v; u.lang="ko-KR"; u.rate=parseFloat($("rate").value); u.pitch=parseFloat($("pitch").value);
+    u.onstart=()=>{document.querySelectorAll(".final p").forEach(p=>p.classList.remove("speak")); const p=$("fp"+i); if(p) p.classList.add("speak");};
+    u.onend=()=>{if(i===ttsParas.length-1) document.querySelectorAll(".final p").forEach(p=>p.classList.remove("speak"));};
+    synth.speak(u);
+  });
+}
+
+/* ===================== 교사 패널 ===================== */
+function fmt(n){return (Math.round(n*100)/100).toString();}
+function scoreTable(sc,title){
+  const rows=[["기사 선택",sc.sel,1],["미션1 핵심 현상",sc.m1,2],["미션1 근거(20자↑)",sc.m1r,2],["미션2 영향 2가지",sc.m2,5],["<b>1단계 소계</b>",sc.s1,10],
+    ["본문1 선택지 정답(3개)",sc.b1f,3],["본문1 상세 설명",sc.b1d,2],["본문2 영향 선택",sc.b2i,2],["본문2 피해 사례",sc.b2c,3],["어조(경어체)",sc.tone,5],["<b>2단계 소계</b>",sc.s2,15]];
+  let h="<table>"+(title?"<caption style='text-align:left;color:var(--muted);font-size:.85rem'>"+esc(title)+"</caption>":"")+"<tr><th>항목</th><th class='n'>득점</th><th class='n'>배점</th></tr>";
+  rows.forEach(r=>h+="<tr><td>"+r[0]+"</td><td class='n'>"+fmt(r[1]||0)+"</td><td class='n'>"+r[2]+"</td></tr>");
+  h+="<tr class='tot'><td>총점</td><td class='n'>"+fmt(sc.total||0)+"</td><td class='n'>25</td></tr></table>";
+  return h;
+}
+function answersTable(an){
+  const names={stuClass:"학년반번호",stuName:"이름",stuGroup:"모둠/역할",m1phen:"미션1 현상",m1reason:"미션1 근거",m2a:"미션2 영향①",m2b:"미션2 영향②",b1loc:"본문1 위치(선택)",b1surf:"본문1 표면(선택)",b1erupt:"본문1 분출(선택)",b1detail:"본문1 상세",b2case:"본문2 피해사례",closing:"클로징",impacts:"선택 영향"};
+  let h="<table><tr><th>항목</th><th>응답</th></tr>";
+  Object.keys(names).forEach(k=>{let v=an[k]; if(Array.isArray(v)) v=v.join(", "); h+="<tr><td>"+names[k]+"</td><td>"+esc(v||"")+"</td></tr>";});
+  return h+"</table>";
+}
+function renderTeacher(){
+  const a=getArticle(); const sc=computeScore();
+  const who=[val("stuClass"),val("stuName")].filter(Boolean).join(" ")||"(학생 정보 미입력)";
+  $("tScore").innerHTML=scoreTable(sc,who+(a?" · "+a.title:" · 기사 미선택")+(a&&val("m1phen")?" · 미션1 선택: "+val("m1phen"):""))+"<details><summary>상세 응답 보기</summary>"+answersTable(answers())+"</details>";
+  let k="<table><tr><th>기사</th><th>예보 날짜</th><th>미션1 핵심(2점) / 관련(1점)</th><th>본문1 정답 (위치 / 표면 / 분출)</th></tr>";
+  ARTICLES.forEach(x=>k+="<tr><td>[기사 "+x.num+"] "+esc(x.title)+"</td><td>"+esc(x.date)+"</td><td>"+esc(x.key.core.join(", "))+" / "+esc(x.key.related.join(", "))+"</td><td>"+esc(x.s2.loc.ans)+"<br>"+esc(x.s2.surf.ans)+"<br>"+esc(x.s2.erupt.ans)+"</td></tr>");
+  $("tKey").innerHTML=k+"</table>";
+  renderGas();
+}
+function renderGas(){
+  const u=CONFIG.GAS_URL;
+  $("gasStatus").innerHTML=u
+    ?"<p class='tip'>현재 상태: <span class='gok'>구글 시트 자동 전송 모드</span><br>웹 앱 URL: <code>"+esc(u)+"</code></p><p class='tip' id='gasRes'>[연결 테스트]를 눌러 시트와의 연결을 확인하세요.</p>"
+    :"<p class='warn'>현재 상태: <span class='gbad'>미연결</span> — CONFIG.GAS_URL이 비어 있어 학생 제출은 '복사 방식'으로 처리됩니다. 아래 순서대로 설정하면 제출 버튼이 구글 시트로 바로 전송합니다.</p><p class='tip' id='gasRes'></p>";
+}
+async function gasTest(){
+  if(!CONFIG.GAS_URL){toast("CONFIG.GAS_URL을 먼저 입력하세요");return;}
+  const el=$("gasRes"); el.innerHTML="⏳ 연결 확인 중...";
+  try{
+    const r=await fetch(CONFIG.GAS_URL+(CONFIG.GAS_URL.includes("?")?"&":"?")+"ping="+Date.now(),{method:"GET",redirect:"follow"});
+    const j=await r.json();
+    el.innerHTML=j.ok
+      ?"<span class='gok'>✅ 연결 성공</span> — 스프레드시트: "+esc(j.spreadsheet||"")+" / 시트: "+esc(j.sheet||"")+" / 저장된 제출: "+(j.rows||0)+"건 / 스크립트 버전: "+esc(j.version||"")
+      :"<span class='gbad'>❌ 서버 응답 오류</span>: "+esc(j.error||"");
+  }catch(e){
+    el.innerHTML="<span class='gbad'>❌ 연결 실패</span> ("+esc(e.message||e)+")<br>· 배포 시 '액세스 권한이 있는 사용자'를 <b>모든 사용자</b>로 설정했는지 확인하세요.<br>· URL이 <b>/exec</b>로 끝나는 웹 앱 URL인지 확인하세요(/dev 아님).<br>· 스크립트 코드를 수정했다면 배포 관리에서 <b>새 버전</b>으로 다시 배포해야 합니다.";
+  }
+}
+function openModal(){$("modal").classList.add("show");$("pinArea").style.display="block";$("teacherArea").style.display="none";$("pinIn").value="";setTimeout(()=>$("pinIn").focus(),50);}
+function closeModal(){$("modal").classList.remove("show");$("teacherArea").style.display="none";$("pinArea").style.display="block";}
+function unlock(){
+  if($("pinIn").value!==CONFIG.TEACHER_PIN){toast("PIN이 올바르지 않습니다");$("pinIn").value="";return;}
+  $("pinArea").style.display="none";$("teacherArea").style.display="block";renderTeacher();
+}
+
+/* ===================== 초기화 ===================== */
+function init(){
+  renderStatic(); load(); renderCards(); renderArticle(); renderS2(); applyLoadedSelects(); update(); showLastSubmit();
+  $("btnFinal").addEventListener("click",()=>{renderFinal();$("final").scrollIntoView({behavior:"smooth"});});
+  $("btnPrint").addEventListener("click",()=>{renderFinal();window.print();});
+  $("btnCopy").addEventListener("click",()=>copyText(scriptText(),"대본이 복사되었습니다"));
+  $("btnSubmit").addEventListener("click",submit);
+  $("btnTTS").addEventListener("click",()=>{$("ttsBox").classList.toggle("show");loadVoices();});
+  $("ttsPlay").addEventListener("click",ttsPlay);
+  $("ttsPause").addEventListener("click",()=>{if(synth) synth.pause();});
+  $("ttsStop").addEventListener("click",()=>{if(synth) synth.cancel();document.querySelectorAll(".final p").forEach(p=>p.classList.remove("speak"));});
+  $("rate").addEventListener("input",e=>$("rateV").textContent=parseFloat(e.target.value).toFixed(1));
+  $("pitch").addEventListener("input",e=>$("pitchV").textContent=parseFloat(e.target.value).toFixed(1));
+  $("btnReset").addEventListener("click",()=>{if(confirm("모든 입력 내용을 지우고 처음부터 시작할까요?")){localStorage.removeItem(CONFIG.STORAGE_KEY);location.reload();}});
+  if(synth){loadVoices(); synth.onvoiceschanged=loadVoices;}
+  $("teacherLink").addEventListener("click",openModal);
+  $("pinOk").addEventListener("click",unlock);
+  $("pinIn").addEventListener("keydown",e=>{if(e.key==="Enter") unlock();});
+  $("pinCancel").addEventListener("click",closeModal);
+  $("tLock").addEventListener("click",closeModal);
+  $("gasTest").addEventListener("click",gasTest);
+  $("gasCopy").addEventListener("click",()=>copyText($("gasCode").textContent.trim(),"Apps Script 코드가 복사되었습니다. 스크립트 편집기에 붙여넣으세요"));
+  $("modal").addEventListener("click",e=>{if(e.target===$("modal")) closeModal();});
+  $("codeDecode").addEventListener("click",()=>{
+    try{const d=decodeCode($("codeIn").value); $("codeOut").innerHTML=scoreTable(d.score,(d.stu||[]).join(" ")+" · "+(d.art||""))+"<details><summary>상세 응답 보기</summary>"+answersTable(d.answers||{})+"</details>";}
+    catch(e){$("codeOut").innerHTML="<p class='warn'>코드를 해독할 수 없습니다. 전체 코드가 빠짐없이 붙여졌는지 확인하세요.</p>";}
+  });
+  document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&(e.key==="T"||e.key==="t")){e.preventDefault();openModal();}});
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
